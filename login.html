@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Login - Valorize</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+<main class="form-wrapper">
+    <div class="form-box">
+        <h2>Entrar</h2>
+        <form id="loginForm" class="form">
+            <label class="sr-only">E-mail</label>
+            <input type="email" name="email" id="email" placeholder="E-mail" required>
+
+            <label class="sr-only">Senha</label>
+            <input type="password" name="senha" id="senha" placeholder="Senha" required>
+
+            <div class="actions">
+                <button type="submit" class="btn">Entrar</button>
+                <a href="register.html" class="btn btn-secondary">Cadastrar</a>
+            </div>
+        </form>
+        <a href="esqueceu_senha.html" class="small-link">Esqueceu a senha?</a>
+    </div>
+</main>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+        
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+
+        console.log("Tentando logar com:", email);
+
+        try {
+            const response = await fetch('http://localhost:3333/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // 2. Salva o token que o autenticarToken vai pedir depois
+                localStorage.setItem('token', data.token);
+            
+                console.log("Login realizado! Redirecionando...");
+                window.location.replace('perfil.html'); 
+            } else {
+                alert('Erro: ' + (data.erro || 'Usuário ou senha inválidos'));
+            }
+        } catch (error) {
+            console.error("Erro na conexão:", error);
+            alert('Não foi possível conectar ao servidor. O backend (porta 3333) está ligado?');
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Cadastro - Valorize</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/register.css">
+</head>
+<body>
+
+<main class="form-wrapper">
+    <div class="form-box">
+        <h2>Crie a sua conta. É grátis!</h2>
+        <form id="registerForm" class="form">
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Escolha o tipo da sua conta</legend>
+                <div class="radio-group">
+                    <label><input type="radio" name="tipo_conta" value="pf" checked> <span>Pessoa Física</span></label>
+                    <label><input type="radio" name="tipo_conta" value="pj"> <span>Pessoa Jurídica</span></label>
+                </div>
+            </fieldset>
+
+            <input type="text" name="nome" placeholder="Nome completo" required>
+            <input type="text" name="nome_preferido" placeholder="Como prefere ser chamado (ex: João, Maria)">
+            
+            <div id="cpfRow"><input type="text" id="cpfInput" name="cpf" placeholder="CPF" maxlength="14"></div>
+            <div id="cnpjRow" style="display:none"><input type="text" id="cnpjInput" name="cnpj" placeholder="CNPJ" maxlength="18"></div>
+            <div id="dateRow"><input type="date" name="data_nascimento" placeholder="Data de nascimento"></div>
+            
+            <input type="tel" name="telefone" placeholder="Telefone (ex: 83 99999-9999)" required>
+            <input type="text" name="creci" placeholder="CRECI (ex: 1234-F)" required>
+            
+            <input type="email" name="email" placeholder="E-mail" required>
+            <input type="password" name="senha" placeholder="Senha (mín. 6 caracteres)" required>
+            <input type="password" name="confirmar_senha" placeholder="Confirmar senha" required>
+
+            <div class="actions">
+                <button type="submit" class="btn">Cadastrar</button>
+                <a href="login.html" class="btn btn-secondary">Voltar</a>
+            </div>
+            
+            <div class="consent">
+                <label><input type="checkbox" id="agreeTerms" required> Eu concordo com os Termos e Política</label>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+    const form = document.getElementById('registerForm');
+    const radios = document.querySelectorAll('input[name="tipo_conta"]');
+
+    // Lógica para alternar campos de PF/PJ e Data
+    function updateFields() {
+        const isPF = document.querySelector('input[name="tipo_conta"]:checked').value === 'pf';
+        document.getElementById('cpfRow').style.display = isPF ? '' : 'none';
+        document.getElementById('cnpjRow').style.display = isPF ? 'none' : '';
+        document.getElementById('dateRow').style.display = isPF ? '' : 'none';
+    }
+
+    radios.forEach(r => r.addEventListener('change', updateFields));
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (form.senha.value !== form.confirmar_senha.value) {
+            alert("As senhas não coincidem!");
+            return;
+        }
+
+        const tipo = document.querySelector('input[name="tipo_conta"]:checked').value;
+        const doc = tipo === 'pf' ? document.getElementById('cpfInput').value : document.getElementById('cnpjInput').value;
+
+        const dados = {
+            nome: form.nome.value,
+            email: form.email.value,
+            senha: form.senha.value,
+            telefone: form.telefone.value,
+            creci: form.creci.value,
+            cpf_cnpj: doc
+        };
+
+        try {
+            const response = await fetch('http://localhost:3333/registrar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            if (response.ok) {
+                alert('Cadastro realizado com sucesso!');
+                window.location.href = 'login.html';
+            } else {
+                const erro = await response.json();
+                alert('Erro: ' + (erro.erro || 'Falha no cadastro'));
+            }
+        } catch (err) {
+            alert('Erro ao conectar com o servidor.');
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Meu Perfil - Valorize</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="topo">
+        <div class="top-inner">
+            <div class="logo"><a href="index.html"><h1>Valorize</h1></a></div>
+            <nav class="menu">
+                <a href="index.html">Início</a>
+                <a href="perfil.html">Meu Perfil</a>
+                <a href="suporte.html">Suporte</a>
+            </nav>
+            <div class="actions">
+                <button onclick="logout()" class="btn btn-secondary">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-center">
+        <div class="profile-container">
+            <div class="card profile-card">
+                <div class="profile-header">
+                    <div class="avatar">
+                        <img src="https://via.placeholder.com/96" alt="Avatar">
+                    </div>
+                    <div class="profile-info">
+                        <h2 id="userName">Carregando...</h2>
+                        <div class="profile-actions">
+                            <button id="editBtn" class="btn btn-secondary">Editar perfil</button>
+                            <button class="btn">Alterar senha</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-body">
+                    <section class="profile-details">
+                        <h3>Detalhes da conta</h3>
+                        <dl>
+                            <dt>Nome</dt><dd id="detailName">...</dd>
+                            <dt>CRECI</dt><dd id="detailCreci">...</dd>
+                            <dt>Telefone</dt><dd id="detailPhone">...</dd>
+                        </dl>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        (async function() {
+            const token = localStorage.getItem('token');
+            if (!token) { window.location.href = 'login.html'; return; }
+
+            try {
+                const response = await fetch('http://localhost:3333/perfil', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const usuario = await response.json();
+                    document.getElementById('userName').textContent = usuario.nome;
+                    document.getElementById('detailName').textContent = usuario.nome;
+                    document.getElementById('detailCreci').textContent = usuario.creci;
+                    document.getElementById('detailPhone').textContent = usuario.telefone;
+                } else {
+                    logout();
+                }
+            } catch (err) {
+                console.error('Erro ao conectar:', err);
+            }
+        })();
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
